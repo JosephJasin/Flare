@@ -1,26 +1,49 @@
-import 'package:flutter/foundation.dart' show required, ChangeNotifier;
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show ChangeNotifier;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Config extends ChangeNotifier {}
 
 class Auth extends ChangeNotifier {
   final firebaseAuth = FirebaseAuth.instance;
-  final _googleSignIn = GoogleSignIn();
+  String url;
 
-  Stream<User> get authStateChanges => firebaseAuth.idTokenChanges();
+  User currentUser;
+
+  bool get isSignedIn => currentUser != null;
+
+  test() async {
+    if (currentUser == null){
+      url = null;
+      return;
+    }
+
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('profiles')
+        .doc(currentUser.uid)
+        .get();
+    url ??= snapshot.data()['image'];
+
+    print('url : $url');
+
+    notifyListeners();
+  }
 
   Auth() {
     firebaseAuth.userChanges().listen((user) {
       currentUser = user;
+      test();
       notifyListeners();
     });
   }
 
   ///return null the user sign-in with Facebook.
   ///otherwise a message with the error will be returned.
-  Future<UserCredential> signInWithFacebook() async {
+  Future<void> signInWithFacebook() async {
     // Create a new provider
     FacebookAuthProvider facebookProvider = FacebookAuthProvider();
 
@@ -29,44 +52,23 @@ class Auth extends ChangeNotifier {
       'display': 'popup',
     });
 
-
-
-
     // Once signed in, return the UserCredential
-    return await firebaseAuth.signInWithPopup(facebookProvider);
-  }
+    final userCredential = await firebaseAuth.signInWithPopup(facebookProvider);
 
-  User currentUser;
-
-  bool get isSignedIn => currentUser != null;
-
-  ///return null the user sign-in with Google.
-  ///otherwise a message with the error will be returned.
-  Future<String> signInWithGoogle() async {
-    //Prevent google sign-in from automatically sign-in with a default account.
-    _googleSignIn.signOut();
-
-    try {
-      final googleUser = await _googleSignIn.signIn();
-
-      if (googleUser == null) return 'Google sign in process was aborted';
-
-      final googleAuth = await googleUser.authentication;
-
-      await firebaseAuth.signInWithCredential(
-        GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        ),
-      );
-
-      return null;
-    } catch (e) {
-      return e.toString();
+    if (currentUser != null) {
+      FirebaseFirestore.instance
+          .collection('profiles')
+          .doc(firebaseAuth.currentUser.uid)
+          .set({
+        'image': userCredential?.additionalUserInfo?.profile['picture']['data']
+            ['url'],
+        'profile': userCredential.additionalUserInfo.profile['link']
+      });
     }
   }
 
   Future<void> signOut() async {
+    url = null;
     await firebaseAuth.signOut();
   }
 }

@@ -22,10 +22,14 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: MyAppBar(),
-        body: Center(
-          child: Image.network(context.watch<Auth>()?.currentUser?.photoURL ??
-              'https://images.all-free-download.com/images/graphiclarge/harry_potter_icon_6825007.jpg'),
-        ),
+        body: Center(child: Consumer<Auth>(
+          builder: (context, auth, child) {
+            print('test');
+
+            return Image.network(auth.url ??
+                'https://images.all-free-download.com/images/graphiclarge/harry_potter_icon_6825007.jpg');
+          },
+        )),
       ),
     );
   }
