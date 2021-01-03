@@ -19,13 +19,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: MyAppBar(),
-<<<<<<< HEAD
-=======
-        body: Center(
-          child: Image.network(context.watch<Auth>()?.currentUser?.photoURL ??
-              'https://images.all-free-download.com/images/graphiclarge/harry_potter_icon_6825007.jpg'),
-        ),
->>>>>>> parent of b7e0a08... add facebook img support
       ),
     );
   }
