@@ -42,6 +42,7 @@ class Auth extends ChangeNotifier {
 
       return null;
     } catch (e) {
+      print (e.toString());
       return e.toString();
     }
   }

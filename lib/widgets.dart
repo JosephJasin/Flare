@@ -44,7 +44,6 @@ class _MyAppBarState extends State<MyAppBar> {
                               ? auth.signOut()
                               : auth.signInWithGoogle();
 
-                          print('auth : ${auth.currentUser}');
                         },
                       );
                     },
