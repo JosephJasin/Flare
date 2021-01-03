@@ -21,8 +21,6 @@ class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
 class _MyAppBarState extends State<MyAppBar> {
   @override
   Widget build(BuildContext context) {
-    print(context.watch<Auth>().currentUser);
-
     return LayoutBuilder(
       builder: (context, c) {
         if (c.maxWidth > 500)
@@ -43,7 +41,6 @@ class _MyAppBarState extends State<MyAppBar> {
                           auth.isSignedIn
                               ? auth.signOut()
                               : auth.signInWithGoogle();
-
                         },
                       );
                     },
@@ -54,7 +51,9 @@ class _MyAppBarState extends State<MyAppBar> {
                   flex: 2,
                   child: MyButton(
                     title: 'الكتب',
-                    onPressed: () async {},
+                    onPressed: () {
+
+                    },
                   ),
                 ),
                 const Spacer(flex: 1),

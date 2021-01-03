@@ -1,3 +1,4 @@
+import 'package:flare/routes/addPostScreen.dart';
 import 'package:flare/widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +24,19 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: MyAppBar(),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(
+            Icons.add,
+          ),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AddPostScreen();
+              },
+            );
+          },
+        ),
         body: Text('${context.watch<Auth>().currentUser}'),
       ),
     );
