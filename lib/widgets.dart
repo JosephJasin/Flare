@@ -83,10 +83,21 @@ class _MyAppBarState extends State<MyAppBar> {
             unselectedLabelStyle: Theme.of(context).tabBarTheme.labelStyle,
             onTap: (value) {
               final auth = context.read<Auth>();
+<<<<<<< HEAD
 
               switch (value) {
                 case 0:
                   auth.isSignedIn ? auth.signOut() : auth.signInWithGoogle();
+=======
+              UserCredential x;
+              switch (value) {
+                case 0:
+                  auth.isSignedIn
+                      ? auth.signOut()
+                      : x = await auth.signInWithFacebook();
+
+                  print('------------------------------------------------------------------------\nx = ${x.additionalUserInfo.profile}');
+>>>>>>> parent of b7e0a08... add facebook img support
                   break;
 
                 case 1:
