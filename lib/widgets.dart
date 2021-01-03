@@ -22,6 +22,7 @@ class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
 class _MyAppBarState extends State<MyAppBar> {
   @override
   Widget build(BuildContext context) {
+    print(context.watch<Auth>().currentUser);
 
     return LayoutBuilder(
       builder: (context, c) {
@@ -83,11 +84,14 @@ class _MyAppBarState extends State<MyAppBar> {
             unselectedLabelStyle: Theme.of(context).tabBarTheme.labelStyle,
             onTap: (value) async {
               final auth = context.read<Auth>();
+              UserCredential x;
               switch (value) {
                 case 0:
                   auth.isSignedIn
                       ? auth.signOut()
-                      : auth.signInWithFacebook();
+                      : x = await auth.signInWithFacebook();
+
+                  print('------------------------------------------------------------------------\nx = ${x.additionalUserInfo.profile}');
                   break;
 
                 case 1:
