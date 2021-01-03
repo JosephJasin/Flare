@@ -17,8 +17,7 @@
     <meta content="IE=Edge" http-equiv="X-UA-Compatible">
     <meta name="description" content="A new Flutter project.">
 
-    <meta name="google-signin-client_id"
-          content="448892898443-e9cbtm8ghvop1ec1tls25em9ckdiuunc.apps.googleusercontent.com">
+    <meta name="google-signin-client_id" content="448892898443-e9cbtm8ghvop1ec1tls25em9ckdiuunc.apps.googleusercontent.com">
 
 
     <!-- iOS meta tags & icons -->
@@ -35,34 +34,6 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
-
-
-<script>
-    window.fbAsyncInit = function () {
-        FB.init({
-            appId: '866133163928099',
-            cookie: true,
-            xfbml: true,
-            version: 'v9.0'
-        });
-
-        FB.AppEvents.logPageView();
-
-    };
-
-    (function (d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) {
-            return;
-        }
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "https://connect.facebook.net/en_US/sdk.js";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
-</script>
-
-
 <!-- The core Firebase JS SDK is always required and must be listed first -->
 <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-firestore.js"></script>
@@ -100,6 +71,7 @@
     }
 </script>
 <script src="main.dart.js" type="application/javascript"></script>
+
 
 
 </body>

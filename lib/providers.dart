@@ -1,39 +1,22 @@
 import 'package:flutter/foundation.dart' show required, ChangeNotifier;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class Config extends ChangeNotifier {}
 
 class Auth extends ChangeNotifier {
-  final firebaseAuth = FirebaseAuth.instance;
+  final _firebaseAuth = FirebaseAuth.instance;
   final _googleSignIn = GoogleSignIn();
 
-  Stream<User> get authStateChanges => firebaseAuth.idTokenChanges();
+  Stream<User> get authStateChanges => _firebaseAuth.idTokenChanges();
 
   Auth() {
-    firebaseAuth.userChanges().listen((user) {
+    _firebaseAuth.userChanges().listen((user) {
       currentUser = user;
       notifyListeners();
-    });
-  }
 
-  ///return null the user sign-in with Facebook.
-  ///otherwise a message with the error will be returned.
-  Future<UserCredential> signInWithFacebook() async {
-    // Create a new provider
-    FacebookAuthProvider facebookProvider = FacebookAuthProvider();
-
-    facebookProvider.addScope('email').addScope('user_link');
-    facebookProvider.setCustomParameters({
-      'display': 'popup',
     });
 
-
-
-
-    // Once signed in, return the UserCredential
-    return await firebaseAuth.signInWithPopup(facebookProvider);
   }
 
   User currentUser;
@@ -53,7 +36,7 @@ class Auth extends ChangeNotifier {
 
       final googleAuth = await googleUser.authentication;
 
-      await firebaseAuth.signInWithCredential(
+      await _firebaseAuth.signInWithCredential(
         GoogleAuthProvider.credential(
           accessToken: googleAuth.accessToken,
           idToken: googleAuth.idToken,
@@ -62,11 +45,12 @@ class Auth extends ChangeNotifier {
 
       return null;
     } catch (e) {
+
       return e.toString();
     }
   }
 
   Future<void> signOut() async {
-    await firebaseAuth.signOut();
+    await _firebaseAuth.signOut();
   }
 }

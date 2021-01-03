@@ -1,9 +1,6 @@
 import 'package:flare/widgets.dart';
 import 'package:flutter/material.dart';
 
-import 'package:provider/provider.dart';
-import '../providers.dart';
-
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -22,10 +19,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: MyAppBar(),
-        body: Center(
-          child: Image.network(context.watch<Auth>()?.currentUser?.photoURL ??
-              'https://images.all-free-download.com/images/graphiclarge/harry_potter_icon_6825007.jpg'),
-        ),
       ),
     );
   }

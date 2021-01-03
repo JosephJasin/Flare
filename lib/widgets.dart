@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -43,7 +42,7 @@ class _MyAppBarState extends State<MyAppBar> {
                         onPressed: () {
                           auth.isSignedIn
                               ? auth.signOut()
-                              : auth.signInWithFacebook();
+                              : auth.signInWithGoogle();
 
                           print('auth : ${auth.currentUser}');
                         },
@@ -82,16 +81,12 @@ class _MyAppBarState extends State<MyAppBar> {
             unselectedLabelColor: Colors.black,
             indicatorColor: Colors.transparent,
             unselectedLabelStyle: Theme.of(context).tabBarTheme.labelStyle,
-            onTap: (value) async {
+            onTap: (value) {
               final auth = context.read<Auth>();
-              UserCredential x;
+
               switch (value) {
                 case 0:
-                  auth.isSignedIn
-                      ? auth.signOut()
-                      : x = await auth.signInWithFacebook();
-
-                  print('------------------------------------------------------------------------\nx = ${x.additionalUserInfo.profile}');
+                  auth.isSignedIn ? auth.signOut() : auth.signInWithGoogle();
                   break;
 
                 case 1:
