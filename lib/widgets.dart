@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'providers.dart';
@@ -115,7 +116,9 @@ class MyButton extends StatelessWidget {
               ),
               child: Text(
                 title,
-                style: TextStyle(fontSize: (c.maxWidth + c.maxHeight) / 13),
+                style: GoogleFonts.changa(
+                    fontSize: (c.maxWidth + c.maxHeight) / 17,
+                    fontWeight: FontWeight.bold),
               ),
               onPressed: onPressed,
             ),
@@ -125,7 +128,7 @@ class MyButton extends StatelessWidget {
           child: Tab(
             child: Text(
               title,
-              style: TextStyle(
+              style: GoogleFonts.changa(
                 fontWeight: FontWeight.bold,
                 color: isSelected ? Colors.blue : Colors.grey[700],
               ),

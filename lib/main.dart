@@ -1,5 +1,9 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flare/routes/homeScreen.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'providers.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -13,7 +17,7 @@ void main() async {
 
   await Firebase.initializeApp();
 
-  await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
+  if (kIsWeb) await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
 
   runApp(
     MultiProvider(
@@ -38,6 +42,14 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: HomeScreen(),
+      theme: ThemeData(
+        fontFamily: GoogleFonts.changa().fontFamily,
+        snackBarTheme: SnackBarThemeData(
+          contentTextStyle: GoogleFonts.changa(
+            color: Colors.white,
+          ),
+        ),
+      ),
     );
   }
 }

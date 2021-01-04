@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "448892898443",
+    "project_id": "flare-7c623",
+    "storage_bucket": "flare-7c623.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:448892898443:android:0ddd250c71df367c85588e",
+        "android_client_info": {
+          "package_name": "com.dscasu.flare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "448892898443-0f3g6fav0ac2rnt0e76eru7c6jvvnoqt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dscasu.flare",
+            "certificate_hash": "b95a38e141db9cb18b3a29996d86b84e2a31fae3"
+          }
+        },
+        {
+          "client_id": "448892898443-e9cbtm8ghvop1ec1tls25em9ckdiuunc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8TLez1ZRW-gP9nt2GUDGvZV4Vsf15bXk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "448892898443-e9cbtm8ghvop1ec1tls25em9ckdiuunc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
