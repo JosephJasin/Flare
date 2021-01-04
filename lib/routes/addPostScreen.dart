@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flare/providers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'package:provider/provider.dart';
 
 class AddPostScreen extends StatefulWidget {
   @override
@@ -187,7 +191,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 fontSize: s.height / 35,
               ),
             ),
-            onPressed: () {
+            onPressed: () async {
               String error;
               if (isRequest == null)
                 error = 'قم باختيار نوع الأعلان';
@@ -198,22 +202,42 @@ class _AddPostScreenState extends State<AddPostScreen> {
               else if (contactController.text.trim().isEmpty)
                 error = 'قم بادخال طريقة التواصل';
               if (error != null)
-                sKey.currentState.showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      error,
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                sKey.currentState
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        error,
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
+                      backgroundColor: Colors.redAccent,
+                      behavior: SnackBarBehavior.floating,
                     ),
-                    backgroundColor: Colors.redAccent,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+                  );
               else {
-                //TODO: Add the post to firestore
+                await Firestore.instance.collection('posts').doc().set({
+                  'uid': context.read<Auth>().uid,
+                  'isRequest': isRequest,
+                  'faculty': faculty,
+                  'course': course,
+                  'contactInfo': contactController.text.trim()
+                });
 
+                await Navigator.of(context).maybePop();
+
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: const Text(
+                    'تم اضافة اعلانك بنجاح',
+                    textDirection: TextDirection.rtl,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  backgroundColor: Colors.green,
+                ));
               }
             },
           ),

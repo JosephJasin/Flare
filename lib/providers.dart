@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show  ChangeNotifier;
+import 'package:flutter/foundation.dart' show ChangeNotifier;
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:google_sign_in/google_sign_in.dart';
@@ -19,6 +19,12 @@ class Auth extends ChangeNotifier {
   User currentUser;
 
   bool get isSignedIn => currentUser != null;
+
+  String get uid {
+    if (currentUser != null) return currentUser.uid;
+
+    return null;
+  }
 
   ///return null the user sign-in with Google.
   ///otherwise a message with the error will be returned.
@@ -42,7 +48,7 @@ class Auth extends ChangeNotifier {
 
       return null;
     } catch (e) {
-      print (e.toString());
+      print(e.toString());
       return e.toString();
     }
   }
