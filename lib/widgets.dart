@@ -25,109 +25,57 @@ class _MyAppBarState extends State<MyAppBar> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, c) {
-        if (c.maxWidth > 500)
-          return Container(
-            color: Colors.transparent,
-            height: c.maxHeight / 7,
-            child: Row(
-              children: [
-                const Spacer(flex: 1),
-                Expanded(
-                  flex: 2,
-                  child: Consumer<Auth>(
-                    builder: (context, auth, child) {
-                      return MyButton(
-                        title:
-                            auth.isSignedIn ? 'تسجيل الخروج' : 'تسجيل الدخول',
-                        onPressed: () {
-                          auth.isSignedIn
-                              ? auth.signOut()
-                              : auth.signInWithGoogle();
-                        },
-                      );
-                    },
-                  ),
+        return Container(
+          color: Colors.transparent,
+          height: c.maxHeight / 7,
+          child: Row(
+            children: [
+              if (c.maxWidth > 500) const Spacer(flex: 1),
+              Expanded(
+                flex: 2,
+                child: Consumer<Auth>(
+                  builder: (context, auth, child) {
+                    return MyButton(
+                      title: auth.isSignedIn ? 'تسجيل الخروج' : 'تسجيل الدخول',
+                      onPressed: () {
+                        auth.isSignedIn
+                            ? auth.signOut()
+                            : auth.signInWithGoogle();
+                      },
+                    );
+                  },
                 ),
-                const Spacer(flex: 1),
-                Expanded(
-                  flex: 2,
-                  child: MyButton(
-                    title: 'الكتب المتوفرة',
-                    onPressed: () {
-                      setState(() {
-                        selected = 1;
-                      });
-                    },
-                    isSelected: selected == 1,
-                  ),
-                ),
-                const Spacer(flex: 1),
-                Expanded(
-                  flex: 2,
-                  child: MyButton(
-                    title: 'الكتب المطلوبة',
-                    onPressed: () {
-                      setState(() {
-                        selected = 2;
-                      });
-                    },
-                    isSelected: selected == 2,
-                  ),
-                ),
-                Spacer(
-                  flex: 1,
-                ),
-              ],
-            ),
-          );
-
-        return DefaultTabController(
-          length: 3,
-          initialIndex: 1,
-          child: TabBar(
-            labelColor: Colors.black,
-            unselectedLabelColor: Colors.black,
-            unselectedLabelStyle: Theme.of(context).tabBarTheme.labelStyle,
-            onTap: (value) {
-              
-              if (value == 0)
-                return;
-
-              final auth = context.read<Auth>();
-
-              switch (value) {
-                case 0:
-                  auth.isSignedIn ? auth.signOut() : auth.signInWithGoogle();
-
-                  break;
-
-                case 1:
-
-                  break;
-
-                case 2:
-
-                  break;
-              }
-            },
-            tabs: [
-              Consumer<Auth>(
-                builder: (context, auth, child) {
-                  return Tab(
-                    text: auth.isSignedIn ? 'تسجيل الخروج' : 'تسجيل الدخول',
-                  );
-                },
               ),
-              Tab(
-                text: 'الكتب المتوفرة',
+              if (c.maxWidth > 500) const Spacer(flex: 1),
+              Expanded(
+                flex: 2,
+                child: MyButton(
+                  title: 'الكتب المتوفرة',
+                  onPressed: () {
+                    setState(() {
+                      selected = 1;
+                    });
+                  },
+                  isSelected: selected == 1,
+                ),
               ),
-              Tab(
-                text: 'الكتب المطلوبة',
+              if (c.maxWidth > 500) const Spacer(flex: 1),
+              Expanded(
+                flex: 2,
+                child: MyButton(
+                  title: 'الكتب المطلوبة',
+                  onPressed: () {
+                    setState(() {
+                      selected = 2;
+                    });
+                  },
+                  isSelected: selected == 2,
+                ),
               ),
+              if (c.maxWidth > 500) const Spacer(flex: 1),
             ],
           ),
         );
-
       },
     );
   }
@@ -138,6 +86,9 @@ class MyButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isSelected;
 
+  Size get size => Size(window.physicalSize.width / window.devicePixelRatio,
+      window.physicalSize.height / window.devicePixelRatio);
+
   const MyButton(
       {Key key, this.title, @required this.onPressed, this.isSelected = false})
       : super(key: key);
@@ -146,27 +97,41 @@ class MyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, c) {
-        return Material(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(1000),
-          ),
-          child: FlatButton(
+        if (size.width > 500)
+          return Material(
+            elevation: 4,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(1000),
-              side: BorderSide(
-                color: isSelected ? Colors.redAccent : Colors.transparent,
+            ),
+            child: FlatButton(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(1000),
+                side: BorderSide(
+                  color: isSelected ? Colors.blue : Colors.transparent,
+                ),
               ),
+              padding: EdgeInsets.symmetric(
+                vertical: (c.maxWidth + c.maxHeight) / 20,
+              ),
+              child: Text(
+                title,
+                style: TextStyle(fontSize: (c.maxWidth + c.maxHeight) / 13),
+              ),
+              onPressed: onPressed,
             ),
-            padding: EdgeInsets.symmetric(
-              vertical: (c.maxWidth + c.maxHeight) / 20,
-            ),
+          );
+
+        return InkWell(
+          child: Tab(
             child: Text(
               title,
-              style: TextStyle(fontSize: (c.maxWidth + c.maxHeight) / 13),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.blue : Colors.grey[700],
+              ),
             ),
-            onPressed: onPressed,
           ),
+          onTap: onPressed,
         );
       },
     );
