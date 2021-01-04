@@ -1,9 +1,11 @@
-import 'dart:html';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AddPostScreen extends StatefulWidget {
+  final GlobalKey<ScaffoldState> sKey;
+
+  const AddPostScreen({Key key, this.sKey}) : super(key: key);
+
   @override
   _AddPostScreenState createState() => _AddPostScreenState();
 }
@@ -17,137 +19,185 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Widget build(BuildContext context) {
     Size s = MediaQuery.of(context).size;
 
-    return AlertDialog(
-      title: Text(
-        'اضافة اعلان جديد',
+    return SimpleDialog(
+      elevation: 10,
+      titlePadding: EdgeInsets.only(right: 14, left: 15, top: 10, bottom: 20),
+      title: Stack(
         textDirection: TextDirection.rtl,
+        children: [
+          const Text('اضافة اعلان جديد'),
+          Positioned(
+            left: 0,
+            child: IconButton(
+              tooltip: 'الغاء',
+              icon: Icon(Icons.clear),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
+        ],
       ),
-      content: Container(
-        height: s.height / 1.5,
-        width: s.width / 3,
-        child: ListView(
-          children: [
-            Text(
-              'أريد أن',
-              textDirection: TextDirection.rtl,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            RadioListTile<bool>(
-              contentPadding: EdgeInsets.only(left: 5, top: 5),
-              title: const Text(
-                'ابحث عن كتاب',
+      children: [
+        Container(
+          height: s.height / 2,
+          width: s.width / 3,
+          child: ListView(
+            padding: EdgeInsets.symmetric(horizontal: 15),
+            children: [
+              Text(
+                'أريد أن',
                 textDirection: TextDirection.rtl,
-              ),
-              groupValue: isRequest,
-              value: true,
-              onChanged: (value) {
-                setState(() => isRequest = value);
-              },
-            ),
-            RadioListTile<bool>(
-              contentPadding: EdgeInsets.only(left: 5),
-              title: const Text(
-                'امنح كتاب',
-                textDirection: TextDirection.rtl,
-              ),
-              groupValue: isRequest,
-              value: false,
-              onChanged: (value) {
-                setState(() => isRequest = value);
-              },
-            ),
-            const Divider(
-              color: Colors.grey,
-              thickness: 1,
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: DropdownButton<String>(
-                hint: Container(
-                  alignment: Alignment.centerRight,
-                  width: s.width / 3.5,
-                  child: Text(
-                    'الكلية',
-                  ),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
                 ),
-                value: faculty,
-                onChanged: (value) {
-                  setState(() {
-                    course = null;
-                    faculty = value;
-                  });
-                },
-                items: courses.keys.map((key) {
-                  return DropdownMenuItem<String>(
-                    child: Container(
-                      alignment: Alignment.centerRight,
-                      width: s.width / 3.5,
-                      child: Text(key),
-                    ),
-                    value: key,
-                    onTap: () {},
-                  );
-                }).toList(),
               ),
-            ),
-            if (faculty != null)
+              Form(
+                autovalidateMode: AutovalidateMode.always,
+                child: RadioListTile<bool>(
+                  contentPadding: EdgeInsets.only(left: 5, top: 5),
+                  title: const Text(
+                    'ابحث عن كتاب',
+                    textDirection: TextDirection.rtl,
+                  ),
+                  groupValue: isRequest,
+                  value: true,
+                  onChanged: (value) {
+                    setState(() => isRequest = value);
+                  },
+                ),
+              ),
+              RadioListTile<bool>(
+                contentPadding: EdgeInsets.only(left: 5),
+                title: const Text(
+                  'امنح كتاب',
+                  textDirection: TextDirection.rtl,
+                ),
+                groupValue: isRequest,
+                value: false,
+                onChanged: (value) {
+                  setState(() => isRequest = value);
+                },
+              ),
+              const Divider(
+                color: Colors.grey,
+                thickness: 1,
+              ),
               Align(
                 alignment: Alignment.centerRight,
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: DropdownButton<String>(
-                    hint: Container(
-                      alignment: Alignment.centerRight,
-                      width: s.width / 3.5,
-                      child: Text(
-                        'المواد',
-                      ),
+                child: DropdownButton<String>(
+                  hint: Container(
+                    alignment: Alignment.centerRight,
+                    width: s.width / 4,
+                    child: Text(
+                      'الكلية',
+                      textDirection: TextDirection.rtl,
                     ),
-                    value: course,
-                    onChanged: (value) {
-                      setState(() {
-                        course = value;
-                      });
-                    },
-                    items: courses[faculty].map((value) {
-                      return DropdownMenuItem<String>(
-                        child: Container(
-                          alignment: Alignment.centerRight,
-                          width: s.width / 3.5,
-                          child: Text(value),
-                        ),
-                        value: value,
-                        onTap: () {},
-                      );
-                    }).toList(),
                   ),
+                  value: faculty,
+                  onChanged: (value) {
+                    setState(() {
+                      course = null;
+                      faculty = value;
+                    });
+                  },
+                  items: courses.keys.map((key) {
+                    return DropdownMenuItem<String>(
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        width: s.width / 4,
+                        child: Text(
+                          key,
+                          textDirection: TextDirection.rtl,
+                        ),
+                      ),
+                      value: key,
+                      onTap: () {},
+                    );
+                  }).toList(),
                 ),
               ),
-            const Divider(
-              color: Colors.grey,
-              thickness: 1,
-            ),
-            TextFormField(
-              textDirection: TextDirection.rtl,
-              textAlign: TextAlign.right,
-              maxLength: 256,
-              decoration: InputDecoration(
-                hintText: 'طريقة التواصل',
+              if (faculty != null)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: DropdownButton<String>(
+                      hint: Container(
+                        alignment: Alignment.centerRight,
+                        width: s.width / 4,
+                        child: Text(
+                          'المواد',
+                          textDirection: TextDirection.rtl,
+                        ),
+                      ),
+                      value: course,
+                      onChanged: (value) {
+                        setState(() => course = value);
+                      },
+                      items: courses[faculty].map((value) {
+                        return DropdownMenuItem<String>(
+                          child: Container(
+                            alignment: Alignment.centerRight,
+                            width: s.width / 4,
+                            child: Text(
+                              value,
+                              textDirection: TextDirection.rtl,
+                            ),
+                          ),
+                          value: value,
+                          onTap: () {},
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              const Divider(
+                color: Colors.grey,
+                thickness: 1,
+              ),
+              TextFormField(
+                textDirection: TextDirection.rtl,
+                textAlign: TextAlign.right,
+                maxLength: 256,
+                decoration: InputDecoration(
+                  hintText: 'طريقة التواصل',
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(left: 10, right: 10, bottom: 5),
+          child: FlatButton(
+            minWidth: s.width / 3,
+            padding: EdgeInsets.all(10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(100),
+              side: BorderSide(
+                color: Colors.grey[300],
               ),
             ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          child: Text('الغاء'),
-          onPressed: () {},
-        ),
-        TextButton(
-          child: Text('نشر'),
-          onPressed: () {},
+            child: Text(
+              'نشر',
+              style: TextStyle(
+                fontSize: s.height / 35,
+              ),
+            ),
+            onPressed: () {
+              if (isRequest == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('test'),
+                    backgroundColor: Colors.redAccent,
+
+                  ),
+                );
+              }
+
+              //TODO: Add the post to firestore
+            },
+          ),
         ),
       ],
     );
