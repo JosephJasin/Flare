@@ -19,6 +19,8 @@ class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _MyAppBarState extends State<MyAppBar> {
+  int selected = 1;
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -36,7 +38,7 @@ class _MyAppBarState extends State<MyAppBar> {
                     builder: (context, auth, child) {
                       return MyButton(
                         title:
-                            auth.isSignedIn ? 'تسيجل الخروج' : 'تسجيبل الدخول',
+                            auth.isSignedIn ? 'تسجيل الخروج' : 'تسجيل الدخول',
                         onPressed: () {
                           auth.isSignedIn
                               ? auth.signOut()
@@ -50,18 +52,26 @@ class _MyAppBarState extends State<MyAppBar> {
                 Expanded(
                   flex: 2,
                   child: MyButton(
-                    title: 'الكتب',
+                    title: 'الكتب المتوفرة',
                     onPressed: () {
-
+                      setState(() {
+                        selected = 1;
+                      });
                     },
+                    isSelected: selected == 1,
                   ),
                 ),
                 const Spacer(flex: 1),
                 Expanded(
                   flex: 2,
                   child: MyButton(
-                    title: 'اخر الاخبار',
-                    onPressed: () {},
+                    title: 'الكتب المطلوبة',
+                    onPressed: () {
+                      setState(() {
+                        selected = 2;
+                      });
+                    },
+                    isSelected: selected == 2,
                   ),
                 ),
                 Spacer(
@@ -73,13 +83,16 @@ class _MyAppBarState extends State<MyAppBar> {
 
         return DefaultTabController(
           length: 3,
-          initialIndex: widget.selectedScreen ?? 0,
+          initialIndex: 1,
           child: TabBar(
             labelColor: Colors.black,
             unselectedLabelColor: Colors.black,
-            indicatorColor: Colors.transparent,
             unselectedLabelStyle: Theme.of(context).tabBarTheme.labelStyle,
             onTap: (value) {
+              
+              if (value == 0)
+                return;
+
               final auth = context.read<Auth>();
 
               switch (value) {
@@ -89,9 +102,11 @@ class _MyAppBarState extends State<MyAppBar> {
                   break;
 
                 case 1:
+
                   break;
 
                 case 2:
+
                   break;
               }
             },
@@ -99,19 +114,20 @@ class _MyAppBarState extends State<MyAppBar> {
               Consumer<Auth>(
                 builder: (context, auth, child) {
                   return Tab(
-                    text: auth.isSignedIn ? 'تسيجل الخروج' : 'تسجيبل الدخول',
+                    text: auth.isSignedIn ? 'تسجيل الخروج' : 'تسجيل الدخول',
                   );
                 },
               ),
               Tab(
-                text: 'المسابقات',
+                text: 'الكتب المتوفرة',
               ),
               Tab(
-                text: 'اخر الاخبار',
+                text: 'الكتب المطلوبة',
               ),
             ],
           ),
         );
+
       },
     );
   }

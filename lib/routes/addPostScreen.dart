@@ -59,6 +59,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                SizedBox(height: 5),
+
                 RadioListTile<bool>(
                   contentPadding: EdgeInsets.only(left: 5, top: 5),
                   title: const Text(
@@ -87,74 +89,63 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   color: Colors.grey,
                   thickness: 1,
                 ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: DropdownButton<String>(
+                DropdownButton<String>(
+                  isExpanded: true,
+                  hint: Container(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'الكلية',
+                      textDirection: TextDirection.rtl,
+                    ),
+                  ),
+                  value: faculty,
+                  onChanged: (value) {
+                    setState(() {
+                      course = null;
+                      faculty = value;
+                    });
+                  },
+                  items: courses.keys.map((key) {
+                    return DropdownMenuItem<String>(
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          key,
+                          textDirection: TextDirection.rtl,
+                        ),
+                      ),
+                      value: key,
+                      onTap: () {},
+                    );
+                  }).toList(),
+                ),
+                if (faculty != null)
+                  DropdownButton<String>(
+                    isExpanded: true,
                     hint: Container(
                       alignment: Alignment.centerRight,
-                      width: s.width / 4,
                       child: Text(
-                        'الكلية',
+                        'المواد',
                         textDirection: TextDirection.rtl,
                       ),
                     ),
-                    value: faculty,
+                    value: course,
                     onChanged: (value) {
-                      setState(() {
-                        course = null;
-                        faculty = value;
-                      });
+                      setState(() => course = value);
                     },
-                    items: courses.keys.map((key) {
+                    items: courses[faculty].map((value) {
                       return DropdownMenuItem<String>(
                         child: Container(
                           alignment: Alignment.centerRight,
-                          width: s.width / 4,
                           child: Text(
-                            key,
+                            value,
                             textDirection: TextDirection.rtl,
                           ),
                         ),
-                        value: key,
+                        value: value,
                         onTap: () {},
                       );
                     }).toList(),
-                  ),
-                ),
-                if (faculty != null)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: DropdownButton<String>(
-                        hint: Container(
-                          alignment: Alignment.centerRight,
-                          width: s.width / 4,
-                          child: Text(
-                            'المواد',
-                            textDirection: TextDirection.rtl,
-                          ),
-                        ),
-                        value: course,
-                        onChanged: (value) {
-                          setState(() => course = value);
-                        },
-                        items: courses[faculty].map((value) {
-                          return DropdownMenuItem<String>(
-                            child: Container(
-                              alignment: Alignment.centerRight,
-                              width: s.width / 4,
-                              child: Text(
-                                value,
-                                textDirection: TextDirection.rtl,
-                              ),
-                            ),
-                            value: value,
-                            onTap: () {},
-                          );
-                        }).toList(),
-                      ),
-                    ),
                   ),
                 const Divider(
                   color: Colors.grey,
