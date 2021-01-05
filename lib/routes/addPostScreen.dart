@@ -1,9 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flare/providers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+
+import '../bookModel.dart';
 
 class AddPostScreen extends StatefulWidget {
   @override
@@ -1084,6 +1085,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
               ),
             ),
             onPressed: () async {
+
+              print(await BookModel.getBooks('تكنولوجيا المعلومات' , isRequest: false));
+
               String error;
               if (isRequest == null)
                 error = 'قم باختيار نوع الأعلان';
@@ -1110,13 +1114,15 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     ),
                   );
               else {
-                await Firestore.instance.collection('posts').doc().set({
-                  'uid': context.read<Auth>().uid,
-                  'isRequest': isRequest,
-                  'faculty': faculty,
-                  'course': course,
-                  'contactInfo': contactController.text.trim()
-                });
+
+
+                await BookModel.addBook(Book(
+                  uid: context.read<Auth>().uid,
+                  isRequest: isRequest,
+                  faculty: faculty,
+                  course: course,
+                  contactInfo: contactController.text
+                ));
 
                 await Navigator.of(context).maybePop();
 
