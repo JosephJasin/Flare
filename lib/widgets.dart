@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flare/routes/courses.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -136,6 +138,68 @@ class MyButton extends StatelessWidget {
           ),
           onTap: onPressed,
         );
+      },
+    );
+  }
+}
+
+class Wrapper<T> {
+  T value;
+}
+
+class DropDownSearchable extends StatefulWidget {
+  final Wrapper<String> course;
+
+  DropDownSearchable(this.course) : assert(course != null);
+
+  @override
+  _DropDownSearchableState createState() => _DropDownSearchableState();
+}
+
+class _DropDownSearchableState extends State<DropDownSearchable> {
+  @override
+  Widget build(BuildContext context) {
+    return DropdownSearch<String>(
+      showSearchBox: true,
+      dropdownBuilder: (context, selectedItem, itemAsString) {
+        return Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            itemAsString,
+          ),
+        );
+      },
+      hint: "اختر المادة",
+      mode: Mode.MENU,
+      autoFocusSearchBox: true,
+      dropdownSearchDecoration: InputDecoration(
+        suffix: widget.course.value == null
+            ? Padding(
+                padding: EdgeInsets.only(right: 9),
+                child: RichText(
+                  textDirection: TextDirection.rtl,
+                  text: TextSpan(children: [
+                    WidgetSpan(
+                      child: Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.black,
+                      ),
+                    ),
+                    TextSpan(
+                        text: '  اختر المادة',
+                        style: Theme.of(context).textTheme.bodyText1),
+                  ]),
+                ),
+              )
+            : null,
+      ),
+      dropDownButton: widget.course.value == null ? Container() : null,
+      onFind: (String filter) async => courses,
+      itemAsString: (String u) => u,
+      onChanged: (String data) {
+        setState(() {
+          widget.course.value = data;
+        });
       },
     );
   }

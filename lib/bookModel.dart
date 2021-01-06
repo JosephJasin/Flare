@@ -1,10 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Book {
-  final String uid, faculty, course, contactInfo;
+  final String uid, course, contactInfo;
   final bool isRequest;
 
   String id;
@@ -12,7 +10,6 @@ class Book {
   Book({
     @required this.uid,
     @required this.isRequest,
-    @required this.faculty,
     @required this.course,
     @required this.contactInfo,
   });
@@ -20,7 +17,6 @@ class Book {
   Book.fromJson(Map<String, dynamic> json, [this.id])
       : uid = json['uid'],
         isRequest = json['isRequest'],
-        faculty = json['faculty'],
         course = json['course'],
         contactInfo = json['contactInfo'];
 
@@ -28,7 +24,6 @@ class Book {
     return {
       'uid': uid,
       'isRequest': isRequest,
-      'faculty': faculty,
       'course': course,
       'contactInfo': contactInfo,
     };
