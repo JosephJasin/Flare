@@ -1,4 +1,3 @@
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flare/providers.dart';
 import 'package:flare/widgets.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,7 +7,6 @@ import 'package:provider/provider.dart';
 
 import '../bookModel.dart';
 
-import 'courses.dart';
 
 class AddPostScreen extends StatefulWidget {
   @override
@@ -22,7 +20,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
 
   final sKey = GlobalKey<ScaffoldState>();
 
-  final contactController = TextEditingController();
+  final facebook = TextEditingController();
+  final whatsapp = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -93,15 +92,34 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   color: Colors.grey,
                   thickness: 1,
                 ),
-                DropDownSearchable(course),
+                DropDownSearchable(course , setState),
+                SizedBox(height: 25),
+                Text(
+                  'طريقة التواصل(قم بتحديد طريقة واحدة على الأقل)',
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 TextFormField(
-                  controller: contactController,
+                  controller: facebook,
                   // textDirection: TextDirection.rtl,
                   textAlign: TextAlign.right,
+                  keyboardType: TextInputType.url,
                   maxLength: 256,
-                  maxLines: null,
+                  maxLines: 1,
                   decoration: InputDecoration(
-                    hintText: 'طريقة التواصل',
+                    hintText: 'رابط حسابك على الفيسبوك',
+                  ),
+                ),
+                TextFormField(
+                  controller: whatsapp,
+                  keyboardType: TextInputType.phone,
+                  textAlign: TextAlign.right,
+                  maxLength: 15,
+                  maxLines: 1,
+                  decoration: InputDecoration(
+                    hintText: 'رقم الهاتف',
                   ),
                 ),
               ],
@@ -126,15 +144,22 @@ class _AddPostScreenState extends State<AddPostScreen> {
               ),
             ),
             onPressed: () async {
-
+              facebook.text = facebook.text.trim();
+              whatsapp.text = whatsapp.text.trim();
 
               String error;
               if (isRequest == null)
                 error = 'قم باختيار نوع الأعلان';
-              else if (course == null)
+              else if (course.value == null)
                 error = 'قم باختيار اسم المادة';
-              else if (contactController.text.trim().isEmpty)
-                error = 'قم بادخال طريقة التواصل';
+              else if (facebook.text.isEmpty && whatsapp.text.isEmpty)
+                error = 'قم بادخال طريقة تواصل';
+
+              if (facebook.text.isNotEmpty &&
+                  validFacebookUrl(facebook.text) == null) {
+                error = 'رابط حساب الفيسوبك غير صحيح';
+              }
+
               if (error != null)
                 sKey.currentState
                   ..hideCurrentSnackBar()
@@ -153,10 +178,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   );
               else {
                 await BookModel.addBook(Book(
-                    uid: context.read<Auth>().uid,
-                    isRequest: isRequest,
-                    course: course.value,
-                    contactInfo: contactController.text));
+                  uid: context.read<Auth>().uid,
+                  isRequest: isRequest,
+                  course: course.value,
+                  image: context.read<Auth>().currentUser.photoURL,
+                  name:  context.read<Auth>().currentUser.displayName,
+                  facebook: facebook.text.trim(),
+                  whatsapp: whatsapp.text.trim(),
+                ));
 
                 await Navigator.of(context).maybePop();
 

@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class Book {
-  final String uid, course, contactInfo;
+  final String uid, course, facebook, whatsapp, image, name;
   final bool isRequest;
 
   String id;
@@ -11,21 +12,30 @@ class Book {
     @required this.uid,
     @required this.isRequest,
     @required this.course,
-    @required this.contactInfo,
-  });
+    @required this.image,
+    @required this.name,
+    this.facebook,
+    this.whatsapp,
+  }) : assert(facebook != null || whatsapp != null);
 
   Book.fromJson(Map<String, dynamic> json, [this.id])
       : uid = json['uid'],
+        name = json['name'],
         isRequest = json['isRequest'],
         course = json['course'],
-        contactInfo = json['contactInfo'];
+        image = json['image'],
+        facebook = json['facebook'],
+        whatsapp = json['whatsapp'];
 
   Map<String, dynamic> get toJson {
     return {
       'uid': uid,
       'isRequest': isRequest,
       'course': course,
-      'contactInfo': contactInfo,
+      'image': image,
+      'name' : name,
+      'facebook': facebook,
+      'whatsapp': whatsapp,
     };
   }
 
@@ -46,19 +56,30 @@ class BookModel {
     return Book.fromJson(docSnap.data(), docSnap.id);
   }
 
-  static Future<List<Book>> getBooks(String faculty,
-      {String course, bool isRequest}) async {
-    Query query = _posts.where('faculty', isEqualTo: faculty);
+  static Future<List<Book>> getBooks(bool isRequest, {String course}) async {
+    Query query = _posts.where('isRequest', isEqualTo: isRequest);
 
-    if (course != null) query = query.where('course', isEqualTo: course);
+    if (course != null)
+      query = query.where('course' , isEqualTo: course);
 
-    if (isRequest != null)
-      query = query.where('isRequest', isEqualTo: isRequest);
-
-    QuerySnapshot querySnap = await query.get();
+    final querySnap = await query.get();
 
     return querySnap.docs
         .map((doc) => Book.fromJson(doc.data(), doc.id))
         .toList();
   }
+}
+
+String validFacebookUrl(String url) {
+  url = url.toLowerCase();
+  String pattern =
+      r"^((https://www.)|(https://)|(www.)|[ ])?facebook.com/[\w\.]{1,}";
+  RegExp validator = RegExp(pattern);
+  return validator.stringMatch(url);
+}
+
+String validPhoneNumber(String p) {
+  String pattern = r"^((00962)|(\+962)|(0))7[7-9]\d{7}$";
+  RegExp validator = RegExp(pattern);
+  return validator.stringMatch(p);
 }

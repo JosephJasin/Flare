@@ -9,9 +9,11 @@ import 'package:provider/provider.dart';
 import 'providers.dart';
 
 class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
-  final int selectedScreen;
+  final Wrapper<int> selected;
 
-  MyAppBar({this.selectedScreen});
+  final Function callback;
+
+  MyAppBar(this.selected, this.callback) : assert(selected != null);
 
   @override
   _MyAppBarState createState() => _MyAppBarState();
@@ -22,8 +24,6 @@ class MyAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _MyAppBarState extends State<MyAppBar> {
-  int selected = 1;
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -55,11 +55,11 @@ class _MyAppBarState extends State<MyAppBar> {
                 child: MyButton(
                   title: 'الكتب المتوفرة',
                   onPressed: () {
-                    setState(() {
-                      selected = 1;
+                    widget.callback(() {
+                      widget.selected.value = 1;
                     });
                   },
-                  isSelected: selected == 1,
+                  isSelected: widget.selected.value == 1,
                 ),
               ),
               if (c.maxWidth > 500) const Spacer(flex: 1),
@@ -68,11 +68,11 @@ class _MyAppBarState extends State<MyAppBar> {
                 child: MyButton(
                   title: 'الكتب المطلوبة',
                   onPressed: () {
-                    setState(() {
-                      selected = 2;
+                    widget.callback(() {
+                      widget.selected.value = 2;
                     });
                   },
-                  isSelected: selected == 2,
+                  isSelected: widget.selected.value == 2,
                 ),
               ),
               if (c.maxWidth > 500) const Spacer(flex: 1),
@@ -145,12 +145,16 @@ class MyButton extends StatelessWidget {
 
 class Wrapper<T> {
   T value;
+
+  Wrapper([this.value]);
 }
 
 class DropDownSearchable extends StatefulWidget {
   final Wrapper<String> course;
 
-  DropDownSearchable(this.course) : assert(course != null);
+  final Function callback;
+
+  DropDownSearchable(this.course, this.callback) : assert(course != null);
 
   @override
   _DropDownSearchableState createState() => _DropDownSearchableState();
@@ -161,6 +165,7 @@ class _DropDownSearchableState extends State<DropDownSearchable> {
   Widget build(BuildContext context) {
     return DropdownSearch<String>(
       showSearchBox: true,
+      showClearButton: true,
       dropdownBuilder: (context, selectedItem, itemAsString) {
         return Align(
           alignment: Alignment.centerRight,
@@ -169,8 +174,8 @@ class _DropDownSearchableState extends State<DropDownSearchable> {
           ),
         );
       },
-      hint: "اختر المادة",
       mode: Mode.MENU,
+      selectedItem: widget.course.value,
       autoFocusSearchBox: true,
       dropdownSearchDecoration: InputDecoration(
         suffix: widget.course.value == null
@@ -197,7 +202,7 @@ class _DropDownSearchableState extends State<DropDownSearchable> {
       onFind: (String filter) async => courses,
       itemAsString: (String u) => u,
       onChanged: (String data) {
-        setState(() {
+        widget.callback(() {
           widget.course.value = data;
         });
       },
