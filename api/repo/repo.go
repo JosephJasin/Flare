@@ -5,6 +5,7 @@ import (
 	firebase "firebase.google.com/go"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
+	"time"
 )
 
 type Repo struct {
@@ -43,6 +44,7 @@ func (this *Repo) AddPost(p *Post) (*Post, error) {
 		panic(clientErr)
 		return nil, clientErr
 	}
+
 	defer dbClient.Close()
 	_, _, addErr := dbClient.Collection("posts").Add(this.cntxt, p)
 	if addErr != nil {
@@ -50,7 +52,8 @@ func (this *Repo) AddPost(p *Post) (*Post, error) {
 		return nil, addErr
 	}
 
-	// happily ever after :)
+	p.CreationDate = time.Now().UnixNano()
+	// and happily ever after :)
 	return p, nil
 }
 
