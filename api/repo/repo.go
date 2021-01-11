@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	firebase "firebase.google.com/go"
+	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 )
 
@@ -51,4 +52,38 @@ func (this *Repo) AddPost(p *Post) (*Post, error) {
 
 	// happily ever after :)
 	return p, nil
+}
+
+func (this *Repo) DelPost(uid, courseName string) (bool, error) {
+	app, createErr := firebase.NewApp(this.cntxt, nil, this.serviceAccount)
+	if createErr != nil {
+		panic(createErr)
+		return false, createErr
+	}
+
+	dbClient, clientErr := app.Firestore(this.cntxt)
+	if clientErr != nil {
+		panic(clientErr)
+		return false, clientErr
+	}
+	defer dbClient.Close()
+
+	it := dbClient.Collection("posts").Where("uid", "==", uid).Documents(this.cntxt)
+	for {
+		doc, itErr := it.Next()
+		if itErr == iterator.Done {
+			it.Stop() // memory leak issues
+			break
+		}
+		if itErr != nil {
+			panic(itErr.Error())
+			return false, itErr
+		}
+
+		if doc.Data()["course"] == courseName {
+			dbClient.Collection("posts").Doc(doc.Ref.ID).Delete(this.cntxt)
+		}
+	}
+
+	return true, nil
 }
