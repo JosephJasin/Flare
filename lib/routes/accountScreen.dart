@@ -50,7 +50,7 @@ class AccountScreen extends StatelessWidget {
                         backgroundImage: NetworkImage(book.image),
                         onBackgroundImageError: (exception, stackTrace) {},
                       ),
-                      leading: FlatButton(
+                      leading: s.width >= 500 ? FlatButton(
                         color: Colors.red,
                         child: Text(
                           'حذف',
@@ -59,7 +59,7 @@ class AccountScreen extends StatelessWidget {
                         onPressed: () {
                           BookModel.deleteBookById(book.id);
                         },
-                      ),
+                      ) : null,
                       title: Text(
                         book.name,
                         textDirection: TextDirection.rtl,
@@ -74,8 +74,24 @@ class AccountScreen extends StatelessWidget {
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
                               TextSpan(
-                                text: '\nالتاريخ: ${date.month}/${date.day}',
+                                text: '\nالتاريخ: ${date.month}/${date.day}' + '\n\n',
                                 style: TextStyle(color: Colors.grey[500]),
+                              ),
+
+
+
+                              if (s.width < 500)
+                              WidgetSpan(
+                                child: FlatButton(
+                                  color: Colors.red,
+                                  child: Text(
+                                    'حذف',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  onPressed: () {
+                                    BookModel.deleteBookById(book.id);
+                                  },
+                                ),
                               ),
                             ]),
                       ),
