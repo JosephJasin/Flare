@@ -1,12 +1,12 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flare/providers.dart';
-import 'package:flare/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
 import '../bookModel.dart';
-
+import 'courses.dart';
 
 class AddPostScreen extends StatefulWidget {
   @override
@@ -16,7 +16,7 @@ class AddPostScreen extends StatefulWidget {
 class _AddPostScreenState extends State<AddPostScreen> {
   bool isRequest;
 
-  final course = Wrapper<String>();
+  String course;
 
   final sKey = GlobalKey<ScaffoldState>();
 
@@ -92,7 +92,51 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   color: Colors.grey,
                   thickness: 1,
                 ),
-                DropDownSearchable(course , setState),
+                DropdownSearch<String>(
+                  showSearchBox: true,
+                  showClearButton: true,
+                  dropdownBuilder: (context, selectedItem, itemAsString) {
+                    return Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        itemAsString,
+                      ),
+                    );
+                  },
+                  mode: Mode.MENU,
+                  selectedItem: course,
+                  autoFocusSearchBox: true,
+                  dropdownSearchDecoration: InputDecoration(
+                    suffix: course == null
+                        ? Padding(
+                            padding: EdgeInsets.only(right: 9),
+                            child: RichText(
+                              textDirection: TextDirection.rtl,
+                              text: TextSpan(children: [
+                                WidgetSpan(
+                                  child: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                TextSpan(
+                                    text: '  اختر المادة',
+                                    style:
+                                        Theme.of(context).textTheme.bodyText1),
+                              ]),
+                            ),
+                          )
+                        : null,
+                  ),
+                  dropDownButton: course == null ? Container() : null,
+                  onFind: (String filter) async => courses,
+                  itemAsString: (String u) => u,
+                  onChanged: (String data) {
+                    setState(() {
+                      course = data;
+                    });
+                  },
+                ),
                 SizedBox(height: 25),
                 Text(
                   'طريقة التواصل(قم بتحديد طريقة واحدة على الأقل)',
@@ -116,7 +160,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   controller: whatsapp,
                   keyboardType: TextInputType.phone,
                   textAlign: TextAlign.right,
-                  maxLength: 15,
+                  maxLength: 10,
                   maxLines: 1,
                   decoration: InputDecoration(
                     hintText: 'رقم الهاتف',
@@ -150,7 +194,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               String error;
               if (isRequest == null)
                 error = 'قم باختيار نوع الأعلان';
-              else if (course.value == null)
+              else if (course == null)
                 error = 'قم باختيار اسم المادة';
               else if (facebook.text.isEmpty && whatsapp.text.isEmpty)
                 error = 'قم بادخال طريقة تواصل';
@@ -158,6 +202,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
               if (facebook.text.isNotEmpty &&
                   validFacebookUrl(facebook.text) == null) {
                 error = 'رابط حساب الفيسوبك غير صحيح';
+              }
+
+              if (whatsapp.text.isNotEmpty &&
+                  validPhoneNumber(whatsapp.text) == null) {
+                error = ' رقم الهاتف غير صحيح';
               }
 
               if (error != null)
@@ -180,9 +229,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 await BookModel.addBook(Book(
                   uid: context.read<Auth>().uid,
                   isRequest: isRequest,
-                  course: course.value,
+                  course: course,
                   image: context.read<Auth>().currentUser.photoURL,
-                  name:  context.read<Auth>().currentUser.displayName,
+                  name: context.read<Auth>().currentUser.displayName,
                   facebook: facebook.text.trim(),
                   whatsapp: whatsapp.text.trim(),
                 ));
@@ -206,4 +255,24 @@ class _AddPostScreenState extends State<AddPostScreen> {
       ],
     );
   }
+}
+
+String validFacebookUrl(String url) {
+  url = url.toLowerCase();
+
+  if (!url.contains('facebook.com')) return null;
+
+  try {
+    return 'https://www.facebook.com/${url.substring(url.indexOf('facebook.com') + 13)}';
+  } catch (e) {
+    return null;
+  }
+}
+
+String validPhoneNumber(String p) {
+  if (p.length != 10) return null;
+
+  if (!p.startsWith('07')) return null;
+
+  return p;
 }

@@ -7,6 +7,7 @@ class Book {
   final bool isRequest;
 
   String id;
+  int timestamp;
 
   Book({
     @required this.uid,
@@ -25,7 +26,8 @@ class Book {
         course = json['course'],
         image = json['image'],
         facebook = json['facebook'],
-        whatsapp = json['whatsapp'];
+        whatsapp = json['whatsapp'],
+        timestamp = json['timestamp'];
 
   Map<String, dynamic> get toJson {
     return {
@@ -33,9 +35,10 @@ class Book {
       'isRequest': isRequest,
       'course': course,
       'image': image,
-      'name' : name,
+      'name': name,
       'facebook': facebook,
       'whatsapp': whatsapp,
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
     };
   }
 
@@ -48,7 +51,7 @@ class BookModel {
   static final _posts = _fire.collection('posts');
 
   static Future<void> addBook(Book book) async {
-    await _posts.doc().set(book.toJson);
+    await _posts.add(book.toJson);
   }
 
   static Future<Book> getBookById(String id) async {
@@ -59,8 +62,7 @@ class BookModel {
   static Future<List<Book>> getBooks(bool isRequest, {String course}) async {
     Query query = _posts.where('isRequest', isEqualTo: isRequest);
 
-    if (course != null)
-      query = query.where('course' , isEqualTo: course);
+    if (course != null) query = query.where('course', isEqualTo: course);
 
     final querySnap = await query.get();
 
@@ -68,18 +70,4 @@ class BookModel {
         .map((doc) => Book.fromJson(doc.data(), doc.id))
         .toList();
   }
-}
-
-String validFacebookUrl(String url) {
-  url = url.toLowerCase();
-  String pattern =
-      r"^((https://www.)|(https://)|(www.)|[ ])?facebook.com/[\w\.]{1,}";
-  RegExp validator = RegExp(pattern);
-  return validator.stringMatch(url);
-}
-
-String validPhoneNumber(String p) {
-  String pattern = r"^((00962)|(\+962)|(0))7[7-9]\d{7}$";
-  RegExp validator = RegExp(pattern);
-  return validator.stringMatch(p);
 }

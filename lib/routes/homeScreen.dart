@@ -1,17 +1,13 @@
-import 'dart:html';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flare/bookModel.dart';
+import 'package:flare/providers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:material_floating_search_bar/material_floating_search_bar.dart';
-
 import 'addPostScreen.dart';
-import '../widgets.dart';
-import '../providers.dart';
 import 'courses.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,82 +18,139 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   NavigationRailLabelType labelType = NavigationRailLabelType.none;
 
-  final course = Wrapper<String>();
-
-  final sKey = GlobalKey<ScaffoldState>();
-
-  int selected = 0;
-
+  int selected = 2;
+  bool isRequest = false;
+  String course;
   final controller = TextEditingController();
-
   final focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
-    final isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
-
+    final auth = context.watch<Auth>();
     return Scaffold(
       body: Row(
         children: [
-          //AppBar
-
           //Main content.
           Expanded(
               child: Column(
             children: [
-              //DropDownSearchable(course, setState),
-              TypeAheadField<String>(
-                textFieldConfiguration: TextFieldConfiguration(
-                  onTap: () {
-                    if (focusNode.hasFocus) focusNode.unfocus();
-                  },
-                  controller: controller,
-                  textDirection: TextDirection.rtl,
-                  maxLines: 1,
-                  focusNode: focusNode,
-                  decoration: InputDecoration(
-                    suffixIcon: controller.text.isEmpty
-                        ? Icon(Icons.search)
-                        : IconButton(
-                            icon: Icon(Icons.clear),
-                            onPressed: () {
-                              setState(() {
-                                controller.clear();
-                                focusNode.unfocus();
-                              });
-                            },
-                          ),
-                  ),
-                ),
-                suggestionsCallback: (pattern) => search(pattern),
-                itemBuilder: (context, suggestion) {
-                  return ListTile(
-                    title: Text(
-                      suggestion,
-                      textDirection: TextDirection.rtl,
-                    ),
-                  );
-                },
-                onSuggestionSelected: (suggestion) {
-                  print('test : ${suggestion}');
-                  setState(() {
-                    controller.text = suggestion;
-                  });
-                },
-                noItemsFoundBuilder: (context) {
-                  return ListTile(
-                    leading: Icon(Icons.search),
-                    trailing: Icon(Icons.error_outline),
-                    title: Text(
-                      'اسم المادة غير صحيح',
-                      textDirection: TextDirection.rtl,
-                    ),
+              //Search Box.
+              Container(
+                padding: const EdgeInsets.all(20.0),
+                child: TypeAheadField<String>(
+                  textFieldConfiguration: TextFieldConfiguration(
                     onTap: () {
-                      controller.clear();
+                      if (focusNode.hasFocus) focusNode.unfocus();
                     },
-                  );
-                },
+                    controller: controller,
+                    textDirection: TextDirection.rtl,
+                    maxLines: 1,
+                    focusNode: focusNode,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      suffixIcon: controller.text.isEmpty
+                          ? Icon(Icons.search)
+                          : IconButton(
+                              icon: Icon(Icons.clear),
+                              onPressed: () {
+                                setState(() {
+                                  controller.clear();
+                                  focusNode.unfocus();
+                                });
+                              },
+                            ),
+                    ),
+                  ),
+                  suggestionsCallback: (pattern) => search(pattern),
+                  itemBuilder: (context, suggestion) {
+                    return ListTile(
+                      title: Text(
+                        suggestion,
+                        textDirection: TextDirection.rtl,
+                      ),
+                    );
+                  },
+                  onSuggestionSelected: (suggestion) {
+                    print('test : $suggestion');
+                    setState(() {
+                      controller.text = suggestion;
+                      course = suggestion;
+                    });
+                  },
+                  noItemsFoundBuilder: (context) {
+                    return ListTile(
+                      leading: Icon(Icons.search),
+                      trailing: Icon(Icons.error_outline),
+                      title: Text(
+                        'اسم المادة غير صحيح',
+                        textDirection: TextDirection.rtl,
+                      ),
+                      onTap: () {
+                        controller.clear();
+                      },
+                    );
+                  },
+                ),
+              ),
+
+              //Books.
+              Expanded(
+                child: FutureBuilder<List<Book>>(
+                  future: BookModel.getBooks(isRequest, course: course),
+                  builder: (context, snap) {
+                    if (snap.hasData) {
+                      final books = snap.data;
+                      return ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          itemCount: books.length,
+                          itemBuilder: (context, index) {
+                            final date = DateTime.fromMillisecondsSinceEpoch(books[index].timestamp);
+
+
+
+                            return Card(
+                              child: ListTile(
+                                trailing: CircleAvatar(
+                                  backgroundImage:
+                                      NetworkImage(books[index].image),
+                                ),
+                                title: Text(
+                                  books[index].name,
+                                  textDirection: TextDirection.rtl,
+                                ),
+                                subtitle: Text(
+                                  books[index].course + '\n' +'${date.month}/${date.day}',
+                                  textDirection: TextDirection.rtl,
+                                ),
+                                leading: Container(
+                                  height: double.infinity,
+                                  child: OutlineButton(
+                                    child: Text(
+                                      'تواصل معي',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    onPressed: () {},
+                                  ),
+                                ),
+                              ),
+                            );
+                          });
+                    }
+
+                    return Center(
+                      child: Text(isRequest
+                          ? 'لا يوجد كتب مطلوبة'
+                          : 'لا يوجد كتب متوفرة'),
+                    );
+                  },
+                ),
               ),
             ],
           )),
@@ -108,17 +161,76 @@ class _HomeScreenState extends State<HomeScreen> {
           NavigationRail(
             selectedIndex: selected,
             onDestinationSelected: (int index) {
-              switch (index) {
-                case 0:
-                  labelType = labelType == NavigationRailLabelType.none
-                      ? NavigationRailLabelType.all
-                      : NavigationRailLabelType.none;
-                  break;
-              }
+              focusNode.unfocus();
 
-              setState(() {
-                selected = index;
-              });
+              switch (index) {
+                //Open & Close NavigationRail.
+                case 0:
+                  setState(() {
+                    labelType = labelType == NavigationRailLabelType.none
+                        ? NavigationRailLabelType.all
+                        : NavigationRailLabelType.none;
+                  });
+
+
+
+                  break;
+
+                //My Account.
+                case 1:
+                  if (auth.isSignedIn) {
+                    //TODO: delete posts page.
+
+                    FirebaseFirestore.instance
+                        .collection('posts')
+                        .doc()
+                        .set({'test': 'test'});
+                  } else
+                    auth.signInWithGoogle();
+
+                  break;
+
+                //Available books.
+                case 2:
+                  setState(() {
+                    isRequest = false;
+                    selected = index;
+                  });
+                  break;
+
+                //Requested books.
+                case 3:
+                  setState(() {
+                    isRequest = true;
+                    selected = index;
+                  });
+                  break;
+
+                //Add new Ad.
+                case 4:
+                  if (auth.isSignedIn)
+                    showDialog(
+                      context: context,
+                      builder: (context) => AddPostScreen(),
+                    );
+                  else
+                    auth.signInWithGoogle();
+
+                  break;
+
+                //Sign in/Sign out with Google
+                case 5:
+                  if (auth.isSignedIn)
+                    auth.signOut();
+                  else
+                    auth.signInWithGoogle();
+                  break;
+
+                default:
+                  setState(() {
+                    selected = index;
+                  });
+              }
             },
             labelType: labelType,
             destinations: [
@@ -128,35 +240,63 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               NavigationRailDestination(
                 icon: CircleAvatar(
-                  backgroundImage: NetworkImage(
-                    'https://lh3.googleusercontent.com/a-/AOh14GgsdW09cGNoS3qfSMN_52V8VrXTB4HHjN6fmkMXPw=s96-c',
-                  ),
+                  child: auth.isSignedIn
+                      ? null
+                      : Icon(
+                          Icons.account_circle_outlined,
+                          color: Colors.grey[700],
+                        ),
+                  backgroundColor: Colors.transparent,
+                  backgroundImage: auth.isSignedIn
+                      ? NetworkImage(
+                          auth.currentUser.photoURL,
+                        )
+                      : null,
                 ),
                 label: Text('حسابي'),
               ),
               NavigationRailDestination(
-                icon: Icon(MdiIcons.homeOutline),
-                selectedIcon: Icon(MdiIcons.home),
-                label: Text('الصفحة الرئيسة'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(MdiIcons.notebookCheckOutline),
-                selectedIcon: Icon(MdiIcons.notebookCheck),
+                icon: Tooltip(
+                    message: 'الكتب المتوفرة',
+                    child: Icon(MdiIcons.notebookCheckOutline)),
+                selectedIcon: Tooltip(
+                    message: 'الكتب المتوفرة',
+                    child: Icon(MdiIcons.notebookCheck)),
                 label: Text('الكتب المتوفرة'),
               ),
               NavigationRailDestination(
-                icon: Icon(MdiIcons.bookOpenOutline),
-                selectedIcon: Icon(MdiIcons.bookOpen),
+                icon: Tooltip(
+                  message: 'الكتب المطلوبة',
+                  child: Icon(MdiIcons.bookOpenOutline),
+                ),
+                selectedIcon: Tooltip(
+                  message: 'الكتب المطلوبة',
+                  child: Icon(MdiIcons.bookOpen),
+                ),
                 label: Text('الكتب المطلوبة'),
               ),
               NavigationRailDestination(
-                icon: Icon(MdiIcons.google),
-                label: Text('تسيجيل الدخول'),
+                icon: Tooltip(
+                  message: 'اضافة إعلان جديد',
+                  child: Icon(
+                    MdiIcons.plusThick,
+                  ),
+                ),
+                label: Text('اضافة إعلان جديد'),
               ),
-              NavigationRailDestination(
-                icon: Icon(MdiIcons.logout),
-                label: Text('تسيجيل الخروج'),
-              ),
+              auth.isSignedIn
+                  ? NavigationRailDestination(
+                      icon: Tooltip(
+                          message: 'تسيجيل الخروج',
+                          child: Icon(MdiIcons.logout)),
+                      label: Text('تسيجيل الخروج'),
+                    )
+                  : NavigationRailDestination(
+                      icon: Tooltip(
+                          message: 'تسيجيل الدخول',
+                          child: Icon(MdiIcons.google)),
+                      label: Text('تسيجيل الدخول'),
+                    )
             ],
           ),
         ],
