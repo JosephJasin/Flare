@@ -54,20 +54,20 @@ class BookModel {
     await _posts.add(book.toJson);
   }
 
-  static Future<Book> getBookById(String id) async {
-    final docSnap = await _posts.doc(id).get();
-    return Book.fromJson(docSnap.data(), docSnap.id);
+  static Future<void> deleteBookById(String id) async {
+    await _posts.doc(id).delete();
   }
 
-  static Future<List<Book>> getBooks(bool isRequest, {String course}) async {
+  static Stream<QuerySnapshot>  getBooksById(String uid)  {
+    return _posts.where('uid', isEqualTo: uid).snapshots();
+  }
+
+  static Stream<QuerySnapshot> getBooks(bool isRequest,
+      {String course}) {
     Query query = _posts.where('isRequest', isEqualTo: isRequest);
 
     if (course != null) query = query.where('course', isEqualTo: course);
 
-    final querySnap = await query.get();
-
-    return querySnap.docs
-        .map((doc) => Book.fromJson(doc.data(), doc.id))
-        .toList();
+    return query.snapshots();
   }
 }

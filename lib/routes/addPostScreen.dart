@@ -100,6 +100,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                       alignment: Alignment.centerRight,
                       child: Text(
                         itemAsString,
+                        textDirection: TextDirection.rtl,
                       ),
                     );
                   },
@@ -188,8 +189,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
               ),
             ),
             onPressed: () async {
-              facebook.text = facebook.text.trim();
-              whatsapp.text = whatsapp.text.trim();
+              facebook.text = facebook.text.trim().toLowerCase();
+              whatsapp.text = whatsapp.text.trim().toLowerCase();
 
               String error;
               if (isRequest == null)
@@ -232,8 +233,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   course: course,
                   image: context.read<Auth>().currentUser.photoURL,
                   name: context.read<Auth>().currentUser.displayName,
-                  facebook: facebook.text.trim(),
-                  whatsapp: whatsapp.text.trim(),
+                  facebook: validFacebookUrl(facebook.text),
+                  whatsapp: validPhoneNumber(whatsapp.text),
                 ));
 
                 await Navigator.of(context).maybePop();
@@ -263,7 +264,7 @@ String validFacebookUrl(String url) {
   if (!url.contains('facebook.com')) return null;
 
   try {
-    return 'https://www.facebook.com/${url.substring(url.indexOf('facebook.com') + 13)}';
+    return url.substring(url.indexOf('facebook.com') + 13);
   } catch (e) {
     return null;
   }

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flare/bookModel.dart';
 import 'package:flare/providers.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
+import 'accountScreen.dart';
 import 'addPostScreen.dart';
 import 'courses.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -73,7 +74,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   onSuggestionSelected: (suggestion) {
-                    print('test : $suggestion');
                     setState(() {
                       controller.text = suggestion;
                       course = suggestion;
@@ -97,47 +97,102 @@ class _HomeScreenState extends State<HomeScreen> {
 
               //Books.
               Expanded(
-                child: FutureBuilder<List<Book>>(
-                  future: BookModel.getBooks(isRequest, course: course),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream:
+                      BookModel.getBooks(isRequest, course: course),
                   builder: (context, snap) {
+                    String intro = isRequest ? 'ابحث عن كتاب ' : 'امتلك كتاب ';
+
                     if (snap.hasData) {
-                      final books = snap.data;
+                      final docs = snap.data.docs;
+
+                      if (docs.isEmpty)
+                        return Center(
+                          child: Text(isRequest
+                              ? 'لا يوجد كتب مطلوبة'
+                              : 'لا يوجد كتب متوفرة'),
+                        );
+
                       return ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
-                          itemCount: books.length,
+                          itemCount: docs.length,
                           itemBuilder: (context, index) {
-                            final date = DateTime.fromMillisecondsSinceEpoch(books[index].timestamp);
+                            final book = Book.fromJson(
+                                docs[index].data(), docs[index].id);
 
-
+                            final date = DateTime.fromMillisecondsSinceEpoch(
+                                book.timestamp);
 
                             return Card(
                               child: ListTile(
                                 trailing: CircleAvatar(
-                                  backgroundImage:
-                                      NetworkImage(books[index].image),
+                                  backgroundImage: NetworkImage(book.image),
+                                  onBackgroundImageError:
+                                      (exception, stackTrace) {},
                                 ),
                                 title: Text(
-                                  books[index].name,
+                                  book.name,
                                   textDirection: TextDirection.rtl,
                                 ),
-                                subtitle: Text(
-                                  books[index].course + '\n' +'${date.month}/${date.day}',
+                                subtitle: RichText(
                                   textDirection: TextDirection.rtl,
+                                  text: TextSpan(
+                                      style: TextStyle(color: Colors.grey[700]),
+                                      children: [
+                                        TextSpan(
+                                            text: intro + book.course,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                        TextSpan(
+                                          text:
+                                              '\nالتاريخ: ${date.month}/${date.day}',
+                                          style: TextStyle(
+                                              color: Colors.grey[500]),
+                                        ),
+                                      ]),
                                 ),
-                                leading: Container(
-                                  height: double.infinity,
-                                  child: OutlineButton(
-                                    child: Text(
-                                      'تواصل معي',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                leading: RichText(
+                                  text: TextSpan(children: [
+                                    if (book.facebook != null)
+                                      WidgetSpan(
+                                        child: IconButton(
+                                          icon: Icon(
+                                            MdiIcons.facebook,
+                                            color: Colors.blue,
+                                          ),
+                                          onPressed: () {
+                                            launch(
+                                                'https://www.facebook.com/${book.facebook}');
+                                          },
+                                        ),
                                       ),
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    onPressed: () {},
-                                  ),
+                                    if (book.facebook != null)
+                                      WidgetSpan(
+                                        child: IconButton(
+                                          icon: Icon(
+                                            MdiIcons.facebookMessenger,
+                                            color: Color(0xff00B2FF),
+                                          ),
+                                          onPressed: () {
+                                            launch(
+                                                'https://m.me/${book.facebook}');
+                                          },
+                                        ),
+                                      ),
+                                    if (book.whatsapp != null)
+                                      WidgetSpan(
+                                        child: IconButton(
+                                          icon: Icon(
+                                            MdiIcons.whatsapp,
+                                            color: Colors.green,
+                                          ),
+                                          onPressed: () {
+                                            launch(
+                                                'https://wa.me/${book.whatsapp}');
+                                          },
+                                        ),
+                                      ),
+                                  ]),
                                 ),
                               ),
                             );
@@ -172,19 +227,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         : NavigationRailLabelType.none;
                   });
 
-
-
                   break;
 
                 //My Account.
                 case 1:
                   if (auth.isSignedIn) {
-                    //TODO: delete posts page.
+                    showDialog(context: context , builder: (context) {
+                      return AccountScreen();
+                    },);
 
-                    FirebaseFirestore.instance
-                        .collection('posts')
-                        .doc()
-                        .set({'test': 'test'});
                   } else
                     auth.signInWithGoogle();
 
