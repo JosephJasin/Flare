@@ -28,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<Auth>();
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Row(
         children: [
@@ -98,8 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
               //Books.
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
-                  stream:
-                      BookModel.getBooks(isRequest, course: course),
+                  stream: BookModel.getBooks(isRequest, course: course),
                   builder: (context, snap) {
                     String intro = isRequest ? 'ابحث عن كتاب ' : 'امتلك كتاب ';
 
@@ -140,60 +140,112 @@ class _HomeScreenState extends State<HomeScreen> {
                                       style: TextStyle(color: Colors.grey[700]),
                                       children: [
                                         TextSpan(
-                                            text: intro + book.course,
+                                            text: intro + book.course + '\n',
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold)),
-                                        TextSpan(
-                                          text:
-                                              '\nالتاريخ: ${date.month}/${date.day}',
-                                          style: TextStyle(
-                                              color: Colors.grey[500]),
-                                        ),
+                                        if (size.width >= 500)
+                                          TextSpan(
+                                            text:
+                                                'التاريخ: ${date.month}/${date.day}',
+                                            style: TextStyle(
+                                                color: Colors.grey[500]),
+                                          ),
+                                        if (size.width < 500 &&
+                                            book.facebook != null)
+                                          WidgetSpan(
+                                            child: IconButton(
+                                              icon: Icon(
+                                                MdiIcons.facebook,
+                                                color: Colors.blue,
+                                              ),
+                                              onPressed: () {
+                                                launch(
+                                                    'https://www.facebook.com/${book.facebook}');
+                                              },
+                                            ),
+                                          ),
+                                        if (size.width < 500 &&
+                                            book.facebook != null)
+                                          WidgetSpan(
+                                            child: IconButton(
+                                              icon: Icon(
+                                                MdiIcons.facebookMessenger,
+                                                color: Color(0xff00B2FF),
+                                              ),
+                                              onPressed: () {
+                                                launch(
+                                                    'https://m.me/${book.facebook}');
+                                              },
+                                            ),
+                                          ),
+                                        if (size.width < 500 &&
+                                            book.whatsapp != null)
+                                          WidgetSpan(
+                                            child: IconButton(
+                                              icon: Icon(
+                                                MdiIcons.whatsapp,
+                                                color: Colors.green,
+                                              ),
+                                              onPressed: () {
+                                                launch(
+                                                    'https://wa.me/${book.whatsapp}');
+                                              },
+                                            ),
+                                          ),
+                                        if (size.width < 500)
+                                          TextSpan(
+                                            text: '\n' +
+                                                'التاريخ: ${date.month}/${date.day}',
+                                            style: TextStyle(
+                                                color: Colors.grey[500]),
+                                          ),
                                       ]),
                                 ),
-                                leading: RichText(
-                                  text: TextSpan(children: [
-                                    if (book.facebook != null)
-                                      WidgetSpan(
-                                        child: IconButton(
-                                          icon: Icon(
-                                            MdiIcons.facebook,
-                                            color: Colors.blue,
-                                          ),
-                                          onPressed: () {
-                                            launch(
-                                                'https://www.facebook.com/${book.facebook}');
-                                          },
-                                        ),
-                                      ),
-                                    if (book.facebook != null)
-                                      WidgetSpan(
-                                        child: IconButton(
-                                          icon: Icon(
-                                            MdiIcons.facebookMessenger,
-                                            color: Color(0xff00B2FF),
-                                          ),
-                                          onPressed: () {
-                                            launch(
-                                                'https://m.me/${book.facebook}');
-                                          },
-                                        ),
-                                      ),
-                                    if (book.whatsapp != null)
-                                      WidgetSpan(
-                                        child: IconButton(
-                                          icon: Icon(
-                                            MdiIcons.whatsapp,
-                                            color: Colors.green,
-                                          ),
-                                          onPressed: () {
-                                            launch(
-                                                'https://wa.me/${book.whatsapp}');
-                                          },
-                                        ),
-                                      ),
-                                  ]),
-                                ),
+                                leading: size.width >= 500
+                                    ? RichText(
+                                        text: TextSpan(children: [
+                                          if (book.facebook != null)
+                                            WidgetSpan(
+                                              child: IconButton(
+                                                icon: Icon(
+                                                  MdiIcons.facebook,
+                                                  color: Colors.blue,
+                                                ),
+                                                onPressed: () {
+                                                  launch(
+                                                      'https://www.facebook.com/${book.facebook}');
+                                                },
+                                              ),
+                                            ),
+                                          if (book.facebook != null)
+                                            WidgetSpan(
+                                              child: IconButton(
+                                                icon: Icon(
+                                                  MdiIcons.facebookMessenger,
+                                                  color: Color(0xff00B2FF),
+                                                ),
+                                                onPressed: () {
+                                                  launch(
+                                                      'https://m.me/${book.facebook}');
+                                                },
+                                              ),
+                                            ),
+                                          if (book.whatsapp != null)
+                                            WidgetSpan(
+                                              child: IconButton(
+                                                icon: Icon(
+                                                  MdiIcons.whatsapp,
+                                                  color: Colors.green,
+                                                ),
+                                                onPressed: () {
+                                                  launch(
+                                                      'https://wa.me/${book.whatsapp}');
+                                                },
+                                              ),
+                                            ),
+                                        ]),
+                                      )
+                                    : null,
                               ),
                             );
                           });
@@ -232,10 +284,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 //My Account.
                 case 1:
                   if (auth.isSignedIn) {
-                    showDialog(context: context , builder: (context) {
-                      return AccountScreen();
-                    },);
-
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AccountScreen();
+                      },
+                    );
                   } else
                     auth.signInWithGoogle();
 
