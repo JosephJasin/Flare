@@ -856,3 +856,7 @@ const courses = const <String>[
   "تفسير ايات الاحكام",
   "اساليب تدريس التربية الاسلامية",
 ];
+
+Iterable<String> search(String pattern) {
+  return courses.where((element) => element.contains(pattern));
+}

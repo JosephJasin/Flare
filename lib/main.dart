@@ -40,6 +40,7 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: HomeScreen(),
       theme: ThemeData(
         fontFamily: GoogleFonts.changa().fontFamily,

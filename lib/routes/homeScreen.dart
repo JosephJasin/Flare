@@ -1,12 +1,18 @@
+import 'dart:html';
+
 import 'package:flare/bookModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:material_floating_search_bar/material_floating_search_bar.dart';
 
 import 'addPostScreen.dart';
 import '../widgets.dart';
 import '../providers.dart';
+import 'courses.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -14,147 +20,146 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  NavigationRailLabelType labelType = NavigationRailLabelType.none;
+
   final course = Wrapper<String>();
 
   final sKey = GlobalKey<ScaffoldState>();
 
-  final selectedScreen = Wrapper<int>(1);
+  int selected = 0;
+
+  final controller = TextEditingController();
+
+  final focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
-    print('course = ${selectedScreen.value}');
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/background1.jpg'),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Scaffold(
-        key: sKey,
-        backgroundColor: Colors.transparent,
-        appBar: MyAppBar(selectedScreen , setState),
-        floatingActionButton: FloatingActionButton(
-          tooltip: 'اضافة اعلان جديد',
-          child: Icon(
-            Icons.add,
-          ),
-          onPressed: () {
-            if (context.read<Auth>().isSignedIn)
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AddPostScreen();
-                },
-              );
-            else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  //behavior: SnackBarBehavior.floating,
-                  content: Text(
-                    'قم بتسجيل الدخول من اجل اضافة اعلان',
-                    textDirection: TextDirection.rtl,
+    final isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+
+    return Scaffold(
+      body: Row(
+        children: [
+          //AppBar
+
+          //Main content.
+          Expanded(
+              child: Column(
+            children: [
+              //DropDownSearchable(course, setState),
+              TypeAheadField<String>(
+                textFieldConfiguration: TextFieldConfiguration(
+                  onTap: () {
+                    if (focusNode.hasFocus) focusNode.unfocus();
+                  },
+                  controller: controller,
+                  textDirection: TextDirection.rtl,
+                  maxLines: 1,
+                  focusNode: focusNode,
+                  decoration: InputDecoration(
+                    suffixIcon: controller.text.isEmpty
+                        ? Icon(Icons.search)
+                        : IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: () {
+                              setState(() {
+                                controller.clear();
+                                focusNode.unfocus();
+                              });
+                            },
+                          ),
                   ),
                 ),
-              );
+                suggestionsCallback: (pattern) => search(pattern),
+                itemBuilder: (context, suggestion) {
+                  return ListTile(
+                    title: Text(
+                      suggestion,
+                      textDirection: TextDirection.rtl,
+                    ),
+                  );
+                },
+                onSuggestionSelected: (suggestion) {
+                  print('test : ${suggestion}');
+                  setState(() {
+                    controller.text = suggestion;
+                  });
+                },
+                noItemsFoundBuilder: (context) {
+                  return ListTile(
+                    leading: Icon(Icons.search),
+                    trailing: Icon(Icons.error_outline),
+                    title: Text(
+                      'اسم المادة غير صحيح',
+                      textDirection: TextDirection.rtl,
+                    ),
+                    onTap: () {
+                      controller.clear();
+                    },
+                  );
+                },
+              ),
+            ],
+          )),
 
-              context.read<Auth>().signInWithGoogle();
-            }
-          },
-        ),
+          VerticalDivider(thickness: 1, width: 1),
 
-        body: LayoutBuilder(
-          builder: (context, c) {
-            return FutureBuilder<List<Book>>(
-              future: BookModel.getBooks(selectedScreen.value != 1, course: course.value),
-              builder: (context, snap) {
-                List<Book> books = snap.data;
-                return ListView(
-                  padding: c.maxWidth > 800
-                      ? EdgeInsets.symmetric(horizontal: c.maxWidth / 3)
-                      : EdgeInsets.symmetric(horizontal: 10),
-                  children: [
-                    DropDownSearchable(course, setState),
-                    if (snap.hasData)
-                      for (int i = 0; i < books.length; ++i)
-                        ListTile(
-                          title: Text(
-                            books[i].name,
-                            textDirection: TextDirection.rtl,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Text(
-                            books[i].course,
-                            textDirection: TextDirection.rtl,
-                          ),
-                          trailing: CircleAvatar(
-                            backgroundImage: NetworkImage(books[i].image),
-                          ),
-                        ),
-                  ],
-                );
-              },
-            );
-          },
-        ),
+          //Navigation.
+          NavigationRail(
+            selectedIndex: selected,
+            onDestinationSelected: (int index) {
+              switch (index) {
+                case 0:
+                  labelType = labelType == NavigationRailLabelType.none
+                      ? NavigationRailLabelType.all
+                      : NavigationRailLabelType.none;
+                  break;
+              }
 
-        //           Padding(
-        //             padding: c.maxWidth > 500
-        //                 ? EdgeInsets.symmetric(horizontal: c.maxWidth / 12)
-        //                 : EdgeInsets.symmetric(horizontal: 100),
-        //             child: const Divider(
-        //               color: Colors.grey,
-        //               thickness: 1,
-        //             ),
-        //           ),
-        //           ListTile(
-        //             title: Text(
-        //               'يوسف ياسين',
-        //               textDirection: TextDirection.rtl,
-        //               style: TextStyle(
-        //                 fontWeight: FontWeight.bold,
-        //               ),
-        //             ),
-        //             subtitle: Text(
-        //               'كتاب لغة عربية 1',
-        //               textDirection: TextDirection.rtl,
-        //             ),
-        //             trailing: CircleAvatar(
-        //
-        //             ),
-        //             leading: Container(
-        //               width: 100,
-        //               child:
-        //                   // Row(
-        //                   //   children: [
-        //                   //     CircleAvatar(
-        //                   //       backgroundImage: AssetImage('assets/whatsapp.png'),
-        //                   //       backgroundColor: Colors.transparent,
-        //                   //     ),
-        //                   //     CircleAvatar(
-        //                   //       backgroundImage: AssetImage('assets/facebook.png'),
-        //                   //       backgroundColor: Colors.transparent,
-        //                   //     ),
-        //                   //   ],
-        //                   // ),
-        //
-        //                   RaisedButton(
-        //                 color: Colors.white,
-        //                 shape: RoundedRectangleBorder(
-        //                   borderRadius: BorderRadius.circular(10),
-        //                 ),
-        //                 child: Text('تواصل معي'),
-        //                 onPressed: () {},
-        //               ),
-        //             ),
-        //           ),
-        //         ],
-        //       ),
-        //     );
-        //   },
-        // ),
+              setState(() {
+                selected = index;
+              });
+            },
+            labelType: labelType,
+            destinations: [
+              NavigationRailDestination(
+                icon: Icon(MdiIcons.menu),
+                label: Text(''),
+              ),
+              NavigationRailDestination(
+                icon: CircleAvatar(
+                  backgroundImage: NetworkImage(
+                    'https://lh3.googleusercontent.com/a-/AOh14GgsdW09cGNoS3qfSMN_52V8VrXTB4HHjN6fmkMXPw=s96-c',
+                  ),
+                ),
+                label: Text('حسابي'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(MdiIcons.homeOutline),
+                selectedIcon: Icon(MdiIcons.home),
+                label: Text('الصفحة الرئيسة'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(MdiIcons.notebookCheckOutline),
+                selectedIcon: Icon(MdiIcons.notebookCheck),
+                label: Text('الكتب المتوفرة'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(MdiIcons.bookOpenOutline),
+                selectedIcon: Icon(MdiIcons.bookOpen),
+                label: Text('الكتب المطلوبة'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(MdiIcons.google),
+                label: Text('تسيجيل الدخول'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(MdiIcons.logout),
+                label: Text('تسيجيل الخروج'),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
