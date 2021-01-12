@@ -27,7 +27,7 @@ type Post struct {
 
 func NewRepo() *Repo {
 	return &Repo{
-		option.WithCredentialsFile("./flare-7c623.json"),
+		option.WithCredentialsFile("./flare-service_account.json"),
 		context.Background(),
 	}
 }
@@ -46,13 +46,14 @@ func (this *Repo) AddPost(p *Post) (*Post, error) {
 	}
 
 	defer dbClient.Close()
+
+	p.CreationDate = time.Now().Unix()
 	_, _, addErr := dbClient.Collection("posts").Add(this.cntxt, p)
 	if addErr != nil {
 		panic(addErr)
 		return nil, addErr
 	}
 
-	p.CreationDate = time.Now().UnixNano()
 	// and happily ever after :)
 	return p, nil
 }

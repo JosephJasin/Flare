@@ -8,6 +8,18 @@ import (
 
 var repo = NewRepo()
 
+/* AddPost adds a post with the given data
+{
+    "course": "some course",
+    "facebook": "facebook.com/someone",
+    "id": 16,
+    "image": "https://camo.githubusercontent.com/98ed65187a84ecf897273d9fa18118ce45845057/68747470733a2f2f7261772e6769746875622e636f6d2f676f6c616e672d73616d706c65732f676f706865722d766563746f722f6d61737465722f676f706865722e706e67",
+    "isRequest": false,
+    "name": "Baraa",
+    "uid": "cvhjwekuw",
+    "whatsapp": "079999999"
+}
+*/
 func AddPost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var post Post
