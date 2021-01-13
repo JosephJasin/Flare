@@ -2,6 +2,7 @@ package Session
 
 import (
 	"context"
+	"encoding/json"
 	firebase "firebase.google.com/go"
 	"google.golang.org/api/option"
 )
@@ -39,7 +40,16 @@ func (this *Session) AddAdmin(admin *Admin) (*Admin, error) {
 
 	defer dbClient.Close()
 
-	_, _, addErr := dbClient.Collection("admins").Add(this.cntxt, admin)
+	// there's a packages called structs(github.com/fatih/structs) to do lines 43..49
+	// but it's the same and there's no need to it
+	jAdmin, parseErr := json.Marshal(admin)
+	if parseErr != nil {
+		panic(parseErr)
+	}
+	var mAdmin map[string]interface{}
+	_ = json.Unmarshal(jAdmin, &mAdmin)
+
+	_, _, addErr := dbClient.Collection("admins").Add(this.cntxt, mAdmin)
 	if addErr != nil {
 		panic(addErr)
 		return nil, addErr

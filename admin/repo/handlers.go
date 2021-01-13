@@ -10,6 +10,8 @@ var repo = NewRepo()
 
 /* AddPost adds a post with the given data
 {
+	"adminEmail": "",
+	"adminPassword": "", // admin data so no one can fuck with the data except an admin
     "course": "some course",
     "facebook": "facebook.com/someone",
     "id": 16,
@@ -37,7 +39,14 @@ func AddPost(w http.ResponseWriter, r *http.Request) {
 }
 
 // DelPost deletes a post with the given post uid and course name
-// {"course": "someCourse", "uid": "someUID"}
+/*
+{
+	"adminEmail": "",
+	"adminPassword": "", // admin data so no one can fuck with the data except an admin
+	"course": "someCourse",
+	"uid": "someUID"
+}
+*/
 func DelPost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var post Post
@@ -56,4 +65,8 @@ func DelPost(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	// for testing
 	json.NewEncoder(w).Encode(post)
+}
+
+func (this *Post) DeleteOldPosts() {
+
 }
