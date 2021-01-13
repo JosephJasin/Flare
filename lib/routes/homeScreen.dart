@@ -188,8 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 color: Colors.green,
                                               ),
                                               onPressed: () {
-                                                launch(
-                                                    'https://wa.me/${book.whatsapp}');
+                                                launch('https://wa.me/+962${book.whatsapp.substring(1)}');
                                               },
                                             ),
                                           ),
@@ -239,8 +238,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   color: Colors.green,
                                                 ),
                                                 onPressed: () {
-                                                  launch(
-                                                      'https://wa.me/${book.whatsapp}');
+                                                  launch('https://wa.me/+962${book.whatsapp.substring(1)}');
+
                                                 },
                                               ),
                                             ),
