@@ -1,12 +1,14 @@
 package repo
 
 import (
+	"../panel/Session"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
 )
 
 var repo = NewRepo()
+var admin = Session.NewRepo()
 
 /* AddPost adds a post with the given data
 {
@@ -67,6 +69,31 @@ func DelPost(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(post)
 }
 
-func (this *Post) DeleteOldPosts() {
+func DeleteOldPosts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var post Post
+
+	rawBody, parseErr0 := ioutil.ReadAll(r.Body)
+	if parseErr0 != nil {
+		http.Error(w, parseErr0.Error(), http.StatusBadRequest)
+	}
+
+	body := make(map[string]string)
+	if parseErr1 := json.Unmarshal(rawBody, &body); parseErr1 != nil {
+		http.Error(w, parseErr1.Error(), http.StatusInternalServerError)
+	}
+
+	adm := &Session.Admin{
+		Name:     "",
+		Email:    body["email"],
+		Password: body["password"],
+	}
+	adminExists, _, _ := admin.CheckAdmin(adm)
+	if adminExists {
+		repo.DelOldPosts()
+	}
+	w.WriteHeader(http.StatusOK)
+	// for testing
+	json.NewEncoder(w).Encode(post)
 
 }

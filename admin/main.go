@@ -21,6 +21,7 @@ func start() {
 	//router.HandleFunc("/posts/add", repo.AddPost).Methods(http.MethodPost)
 	router.HandleFunc("/admin/login", Session.AdminSignIn).Methods(http.MethodPost)
 	router.HandleFunc("/admin/add", Session.AddAdmin)
+	router.HandleFunc("/posts/deleteold", repo.DeleteOldPosts).Methods(http.MethodPost)
 
 	log.Fatal(
 		http.ListenAndServe(":6969", router))
